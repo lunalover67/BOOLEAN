@@ -1,19 +1,129 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:background="#F5F5F5"
+    android:orientation="vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <!-- Top Bar -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="#222222"
+        android:gravity="center_vertical"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/vcr"
+            android:text="BOOLEAN"
+            android:textColor="#F5F5F5"
+            android:textSize="16sp"
+            android:letterSpacing="0.15" />
+    </LinearLayout>
+
+    <!-- Content — ConstraintLayout for true centering -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="64dp">
+
+        <!-- Display Box — strict 1:1 square, centered, chained above buttons -->
+        <LinearLayout
+            android:id="@+id/display_box"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="#222222"
+            android:padding="3dp"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/button_row"
+            app:layout_constraintVertical_chainStyle="packed"
+            app:layout_constraintVertical_bias="0.5">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="#FFFFFF"
+                android:gravity="center">
+
+                <TextView
+                    android:id="@+id/display_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="@font/vcr"
+                    android:text="COIN"
+                    android:textColor="#111111"
+                    android:textSize="32sp"
+                    android:letterSpacing="0.2" />
+
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Button Row — chained below display box -->
+        <LinearLayout
+            android:id="@+id/button_row"
+            android:layout_width="0dp"
+            android:layout_height="80dp"
+            android:layout_marginTop="20dp"
+            android:orientation="horizontal"
+            app:layout_constraintTop_toBottomOf="@id/display_box"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <!-- FLIP button — 7 parts -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="7"
+                android:layout_marginEnd="4dp"
+                android:background="#222222"
+                android:padding="3dp">
+
+                <Button
+                    android:id="@+id/flip_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:backgroundTint="#222222"
+                    android:fontFamily="@font/vcr"
+                    android:text="FLIP"
+                    android:textColor="#FFFFFF"
+                    android:textSize="16sp"
+                    android:letterSpacing="0.15"
+                    app:cornerRadius="0dp" />
+            </LinearLayout>
+
+            <!-- RESET button — 3 parts -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="3"
+                android:layout_marginStart="4dp"
+                android:background="#222222"
+                android:padding="3dp">
+
+                <Button
+                    android:id="@+id/reset_button"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:backgroundTint="#FFFFFF"
+                    android:fontFamily="@font/vcr"
+                    android:text="↺"
+                    android:textColor="#222222"
+                    android:textSize="20sp"
+                    android:insetTop="0dp"
+                    android:insetBottom="0dp"
+                    app:cornerRadius="0dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</LinearLayout>
