@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
             return;
         }
 
-        // disable btns (both)
+        // disable btns (both) hiya
 
         // run flip animation (1-3s) :
 
