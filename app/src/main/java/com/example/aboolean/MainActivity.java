@@ -223,7 +223,7 @@ class DisplayItem {
 
     public void buffText() {
         text.setText("");
-        text.setTextSize(122); //sp
+        text.setTextSize(122); // sp btw
     }
 
     public void resetBox() {
