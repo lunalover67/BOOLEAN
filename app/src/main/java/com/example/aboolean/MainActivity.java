@@ -2,6 +2,8 @@ package com.example.aboolean;
 
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -9,15 +11,58 @@ import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowCompat;
-import androidx.core.view.WindowInsetsCompat;
+
+import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
     DisplayItem box, flip_btn, reset_btn;
     boolean flipped, is_flipping = false;
+    Random random = new Random();
+
+    final Handler handler = new Handler();
+    final Runnable flicker = new Runnable() {
+
+        boolean light = true;
+        long end_time = 0;
+
+        @Override
+        public void run() {
+
+            if (end_time == 0) {
+                end_time =  System.currentTimeMillis() + 1000 + random.nextInt(3000);
+                light = true;
+                box.buffText();
+
+                handler.postDelayed(this, 0);
+
+            }
+            else if (System.currentTimeMillis() >= end_time) {
+                end_time = 0;
+                is_flipping = false;
+                flipped = true;
+                reset_btn.setBtnColours(DisplayItem.COLOURS.LIGHT);
+
+            }
+            else {
+
+                if (light) {
+                    box.setContentColours(DisplayItem.COLOURS.DARK);
+                    box.setContentText("0");
+
+                } else {
+                    box.setContentColours(DisplayItem.COLOURS.LIGHT);
+                    box.setContentText("1");
+                }
+
+                light = !light;
+
+                handler.postDelayed(this, 150);
+
+            }
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,36 +85,40 @@ public class MainActivity extends AppCompatActivity {
 
         reset_btn = new DisplayItem(findViewById(R.id.reset_border),
                 findViewById(R.id.reset_btn));
+
     }
 
     public void flip(View view) {
+
+        Log.d("flipped", String.valueOf(flipped));
+        Log.d("is_flipping", String.valueOf(is_flipping));
 
         if (flipped || is_flipping) {
             return;
         }
 
-        // disable btns (both) hiya hiya
+        Log.d("condition", "PASSED");
 
-        // run flip animation (1-3s) :
+        is_flipping = true;
 
-        while (true) {
+        flip_btn.setBtnColours(DisplayItem.COLOURS.DARK);
+        reset_btn.setBtnColours(DisplayItem.COLOURS.DARK);
 
 
-        }
-
-        // show result
-
-        // untoggle the reset
-
+        handler.post(flicker);
     }
 
     public void reset(View view) {
 
-        if (!flipped) {
+        if (is_flipping || !flipped) {
             return;
         }
 
-        //
+        flipped = false;
+        reset_btn.setBtnColours(DisplayItem.COLOURS.DARK);
+        flip_btn.setBtnColours(DisplayItem.COLOURS.LIGHT);
+        box.resetBox();
+
     }
 
     private void clearSystemUI() {
@@ -95,9 +144,14 @@ public class MainActivity extends AppCompatActivity {
 class DisplayItem {
 
     TextView text;
-    LinearLayout border;
+    LinearLayout border; // not rly needed
     LinearLayout background;
     Button button;
+
+    enum COLOURS {
+        LIGHT,
+        DARK
+    }
 
     public DisplayItem(TextView textView, LinearLayout linearLayoutBorder, LinearLayout linearLayoutBackground) {
         text = textView;
@@ -108,6 +162,74 @@ class DisplayItem {
     public DisplayItem(LinearLayout linearLayoutBorder, Button button) {
         this.button = button;
         border = linearLayoutBorder;
+    }
+
+    public void setBtnColours(COLOURS colour) {
+
+        if (button == null) {
+            return;
+        }
+
+        int primary = 0;
+        int secondary = 0;
+
+        switch (colour) {
+
+            case LIGHT:
+                primary = Color.parseColor("#FFFFFF");
+                secondary = Color.parseColor("#222222");
+                break;
+
+            case DARK:
+                primary = Color.parseColor("#222222");
+                secondary = Color.parseColor("#FFFFFF");
+                break;
+        }
+
+        button.setBackgroundColor(primary);
+        button.setTextColor(secondary);
+    }
+
+    public void setContentColours(COLOURS colour) {
+
+        if (background == null) {
+            return;
+        }
+
+        int primary = 0;
+        int secondary = 0;
+
+        switch (colour) {
+
+            case LIGHT:
+                primary = Color.parseColor("#FFFFFF");
+                secondary = Color.parseColor("#222222");
+                break;
+
+            case DARK:
+                primary = Color.parseColor("#222222");
+                secondary = Color.parseColor("#FFFFFF");
+                break;
+        }
+
+        background.setBackgroundColor(primary);
+        text.setTextColor(secondary);
+
+    }
+
+    public void setContentText(String string) {
+        text.setText(string);
+    }
+
+    public void buffText() {
+        text.setText("");
+        text.setTextSize(122); //sp
+    }
+
+    public void resetBox() {
+        text.setTextSize(32);
+        text.setText("COIN");
+        setContentColours(COLOURS.LIGHT);
     }
 
 }
