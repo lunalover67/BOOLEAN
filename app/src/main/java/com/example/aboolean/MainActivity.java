@@ -1,68 +1,136 @@
 package com.example.aboolean;
 
-import android.graphics.Color;
-import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
-import android.view.View;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
-import androidx.activity.EdgeToEdge;
+// ==================================================
+// == [IMPORTS] =====================================
+// ==================================================
+
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.WindowCompat;
-
+import androidx.activity.EdgeToEdge;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.graphics.Color;
+import android.widget.Button;
+import android.os.Handler;
+import android.os.Bundle;
+import android.view.View;
 import java.util.Random;
+
+
+// ==================================================
+// == [MAIN_ACTIVITY] ===============================
+// ==================================================
+
 
 public class MainActivity extends AppCompatActivity {
 
-    DisplayItem box, flip_btn, reset_btn;
-    boolean flipped, is_flipping = false;
-    Random random = new Random();
 
+    // --------------------------------------------------
+    // -- [CLASS VARIABLES] -----------------------------
+    // --------------------------------------------------
+
+
+    // UI items on the screen.
+    DisplayItem coin_box, flip_btn, reset_btn;
+
+    // Tracker variables.
+    boolean flipped, is_flipping = false;
+
+    // Random.. for.. well.. random stuff!
+    final Random random = new Random();
+
+    // (Flickering)
+    // The guy who puts tasks into the message queue (for main thread to do).
     final Handler handler = new Handler();
+
+    // (Flickering)
+    // Pretty much the class that contains the logic for flickering.
     final Runnable flicker = new Runnable() {
 
+        // -- [VARIABLES] -----------------------------------
+        // -- (Note: init only with "new Runnable") ---------
+
+        // Is the coin box light?
         boolean light = true;
+
+        // When to end the flickering.
+        // Note: value of 0 acts as a flag.
         long end_time = 0;
+
+        // -- [METHODS] -------------------------------------
+        // -- (Note: is run when flicker.run() is called) ---
 
         @Override
         public void run() {
 
-            if (end_time == 0) {
-                end_time =  System.currentTimeMillis() + 1000 + random.nextInt(3000);
-                light = true;
-                box.buffText();
+            // If this is the "first time" running.
 
+            if (end_time == 0) {
+
+                // Run for 1-4 seconds (lower limit 1s, + anywhere between 0 and 3s).
+                end_time =  System.currentTimeMillis() + 1000 + random.nextInt(3001);
+
+                // Make sure the variable light is light (as from original it is light).
+                light = true;
+
+                // Just make the text bigger and prep for 1/0.
+                coin_box.buffText();
+
+                // Re-run this function (which will then go to the "else" case).
                 handler.postDelayed(this, 0);
 
             }
+
+            // If time is up.
+
             else if (System.currentTimeMillis() >= end_time) {
+
+                // Reset flag.
                 end_time = 0;
+
+                // Update global flags.
                 is_flipping = false;
                 flipped = true;
+
+                // Visually make the reset button accessible.
                 reset_btn.setBtnColours(DisplayItem.COLOURS.LIGHT);
 
             }
+
+            // If flickering.
+
             else {
 
+                // If light, make dark.
                 if (light) {
-                    box.setContentColours(DisplayItem.COLOURS.DARK);
-                    box.setContentText("0");
+                    coin_box.setContentColours(DisplayItem.COLOURS.DARK);
+                    coin_box.setContentText("0");
 
-                } else {
-                    box.setContentColours(DisplayItem.COLOURS.LIGHT);
-                    box.setContentText("1");
                 }
 
+                // If dark, make light.
+                else {
+                    coin_box.setContentColours(DisplayItem.COLOURS.LIGHT);
+                    coin_box.setContentText("1");
+                }
+
+                // Update colour state.
                 light = !light;
 
-                handler.postDelayed(this, 150);
+                // Re-run (with delay for "visual appeal").
+                handler.postDelayed(this, 200);
 
             }
         }
     };
+
+
+    // --------------------------------------------------
+    // -- [ON_CREATE] + [CLEAR_SYSTEM_UI] ---------------
+    // --------------------------------------------------
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,53 +142,18 @@ public class MainActivity extends AppCompatActivity {
         clearSystemUI();
         setContentView(R.layout.activity_main);
 
-        // UI Linking
+        // UI Linking.
 
-        box = new DisplayItem(findViewById(R.id.display_text),
-                findViewById(R.id.display_box_border),
-                findViewById(R.id.display_box_background));
+        coin_box = new DisplayItem(findViewById(R.id.display_text),
+                              findViewById(R.id.display_box_background));
 
-        flip_btn = new DisplayItem(findViewById(R.id.flip_border),
-                findViewById(R.id.flip_btn));
+        flip_btn = new DisplayItem(findViewById(R.id.flip_btn));
 
-        reset_btn = new DisplayItem(findViewById(R.id.reset_border),
-                findViewById(R.id.reset_btn));
+        reset_btn = new DisplayItem(findViewById(R.id.reset_btn));
 
     }
 
-    public void flip(View view) {
-
-        Log.d("flipped", String.valueOf(flipped));
-        Log.d("is_flipping", String.valueOf(is_flipping));
-
-        if (flipped || is_flipping) {
-            return;
-        }
-
-        Log.d("condition", "PASSED");
-
-        is_flipping = true;
-
-        flip_btn.setBtnColours(DisplayItem.COLOURS.DARK);
-        reset_btn.setBtnColours(DisplayItem.COLOURS.DARK);
-
-
-        handler.post(flicker);
-    }
-
-    public void reset(View view) {
-
-        if (is_flipping || !flipped) {
-            return;
-        }
-
-        flipped = false;
-        reset_btn.setBtnColours(DisplayItem.COLOURS.DARK);
-        flip_btn.setBtnColours(DisplayItem.COLOURS.LIGHT);
-        box.resetBox();
-
-    }
-
+    // Re-used this method from older projects.
     private void clearSystemUI() {
 
         // [CLARITY] Gets rid of the top status bar.
@@ -136,43 +169,115 @@ public class MainActivity extends AppCompatActivity {
                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
                         | View.SYSTEM_UI_FLAG_FULLSCREEN);
 
+    }
+
+
+    // --------------------------------------------------
+    // -- [APPLICATION LOGIC] ---------------------------
+    // --------------------------------------------------
+
+    // "Flips" the coin; runs the flicker animation.
+    public void flip(View view) {
+
+        // Makes sure only flips when its in its default state.
+        if (flipped || is_flipping) {
+            return;
+        }
+
+        // Update flag.
+        is_flipping = true;
+
+        // "Disable" the flip button.
+        flip_btn.setBtnColours(DisplayItem.COLOURS.DARK);
+
+        // Prep and run the flicker animation.
+        handler.post(flicker);
 
     }
 
+    // Resets the coin
+    public void reset(View view) {
+
+        // Makes sure only flips when its in its flipped state.
+        if (is_flipping || !flipped) {
+            return;
+        }
+
+        // Update flag.
+        flipped = false;
+
+        // Visually enable the flip button, disable flip button.
+        reset_btn.setBtnColours(DisplayItem.COLOURS.DARK);
+        flip_btn.setBtnColours(DisplayItem.COLOURS.LIGHT);
+
+        // Reset the coin box.
+        coin_box.resetCoin();
+
+    }
 }
+
+
+// ==================================================
+// == [DISPLAY_ITEM] CLASS (for organization) =======
+// ==================================================
+
 
 class DisplayItem {
 
-    TextView text;
-    LinearLayout border; // not rly needed
-    LinearLayout background;
+
+    // -- [VARIABLES] -----------------------------------
+    // -- (Note: different behaviour depending on view) -
+
+
+    // If linear layout.
+    LinearLayout coin_background;
+    TextView coin_text; // todo RECONFIGURE TO USE COIN
+
+    // If button.
     Button button;
 
+    // Just for organization.
     enum COLOURS {
         LIGHT,
         DARK
     }
 
-    public DisplayItem(TextView textView, LinearLayout linearLayoutBorder, LinearLayout linearLayoutBackground) {
-        text = textView;
-        border = linearLayoutBorder;
-        background = linearLayoutBackground;
+
+    // --------------------------------------------------
+    // -- [CONSTRUCTORS] --------------------------------
+    // --------------------------------------------------
+
+
+    // Constructor for if linear layout (coin).
+    public DisplayItem(TextView textView, LinearLayout linearLayout) {
+        coin_text = textView;
+        coin_background = linearLayout;
     }
 
-    public DisplayItem(LinearLayout linearLayoutBorder, Button button) {
+    // Constructor for if button.
+    public DisplayItem(Button button) {
         this.button = button;
-        border = linearLayoutBorder;
     }
 
+
+    // --------------------------------------------------
+    // -- [BUTTON METHODS] ------------------------------
+    // --------------------------------------------------
+
+
+    // Sets the colour scheme of a button (DARK or LIGHT).
     public void setBtnColours(COLOURS colour) {
 
+        // Ensures that this is being acted on a BUTTON.
         if (button == null) {
             return;
         }
 
+        // Define colour variables.
         int primary = 0;
         int secondary = 0;
 
+        // Sets the colour variables based on the colour input.
         switch (colour) {
 
             case LIGHT:
@@ -184,21 +289,34 @@ class DisplayItem {
                 primary = Color.parseColor("#222222");
                 secondary = Color.parseColor("#FFFFFF");
                 break;
+
         }
 
+        // Applies said colours.
         button.setBackgroundColor(primary);
         button.setTextColor(secondary);
+
     }
 
+
+    // --------------------------------------------------
+    // -- [COIN METHODS] --------------------------------
+    // --------------------------------------------------
+
+
+    // Sets the colour scheme of the coin (DARK or LIGHT).
     public void setContentColours(COLOURS colour) {
 
-        if (background == null) {
+        // Ensures that this is being acted on the coin (LinearLayout).
+        if (coin_background == null) {
             return;
         }
 
+        // Define colour variables.
         int primary = 0;
         int secondary = 0;
 
+        // Sets the colour variables based on the colour input.
         switch (colour) {
 
             case LIGHT:
@@ -210,25 +328,30 @@ class DisplayItem {
                 primary = Color.parseColor("#222222");
                 secondary = Color.parseColor("#FFFFFF");
                 break;
+
         }
 
-        background.setBackgroundColor(primary);
-        text.setTextColor(secondary);
+        // Apply said colours.
+        coin_background.setBackgroundColor(primary);
+        coin_text.setTextColor(secondary);
 
     }
 
+    // Changes text in coin box to param.
     public void setContentText(String string) {
-        text.setText(string);
+        coin_text.setText(string);
     }
 
+    // Makes the text in content coin box bigger (so that 1/0 looks good).
     public void buffText() {
-        text.setText("");
-        text.setTextSize(122); // sp btw
+        coin_text.setText(""); // Will show COIN super big for a moment if not done.
+        coin_text.setTextSize(122); // In sp.
     }
 
-    public void resetBox() {
-        text.setTextSize(32);
-        text.setText("COIN");
+    // Resets the coin's appearance.
+    public void resetCoin() {
+        coin_text.setTextSize(32);
+        coin_text.setText("COIN");
         setContentColours(COLOURS.LIGHT);
     }
 
