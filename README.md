@@ -1,2 +1,3 @@
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/lunalover67/BOOLEAN)
 # BOOLEAN
-an android app that just acts as a coin flip. nothing too special - will include quotes from the matrix!
+will add proper readme later
